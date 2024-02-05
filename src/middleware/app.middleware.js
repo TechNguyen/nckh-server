@@ -1,5 +1,4 @@
 const appMiddleware = (res,req,err,next) => {
-    console.log(err);
     if(err == 400) {
         return res.status(400).json({
             statuscode: 400,
