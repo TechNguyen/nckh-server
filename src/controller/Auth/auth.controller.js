@@ -1,5 +1,6 @@
 import AccountUserModel from '../../model/AccountUser.model.js'
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 class authController {
     async signUp(req,res, next) {
         try {

@@ -5,7 +5,7 @@ class RoleController {
             let {roleName} = req.body 
             var role = await RoleModel.findOne({
                 roleName: roleName
-            }).exec();
+            }).exec();    
             if(role == null) {
                 var rs = await RoleModel.create({
                     roleName: roleName

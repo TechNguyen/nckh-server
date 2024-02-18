@@ -1,5 +1,4 @@
 import excelToJson from "convert-excel-to-json"
-
 class Common {
     importExceltoMongo(filePath, sheetName = "Sheet1") {
         const excelData = excelToJson({

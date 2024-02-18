@@ -1,27 +1,39 @@
 import multer from "multer";
 import ProductModel from "../../model/Product.model.js"
+import imagesProductModel from "../../model/imagesproduct.model.js"
 import Common from "../../../Helper/Common.js";
-import { fileURLToPath } from 'url';
-import path, { dirname } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import excel from 'exceljs'
 var commonjs = new Common();
  
 class ProductController {
     async GetProductbyPage(req,res,next) {
         try {
-            const {pageSize,pageIndex} = req.query
-            if(req.body == null) {
-                var list = await ProductModel.find({deleted: false}).exec();
-                return res.status(200).json(list)
+            let { pageSize , pageIndex} = req.query
+            const totalPage = await ProductModel.countDocuments({deleted: false});
+            if((pageSize * 1) <= 0 || !Boolean(pageSize)) {
+                pageSize = 10;
+            }
+            if((pageIndex * 1) <= 0 || !Boolean(pageIndex)) {
+                pageIndex = 1;
             }
             if(pageIndex != null && pageSize != null) {
                 var list = await ProductModel.find({deleted: false}).skip((pageIndex - 1) * pageSize).limit(pageSize).exec();
-                return res.status(200).json(list)
+                return res.status(200).json({
+                    msg: "Get products successfully!",
+                    totalPage: totalPage,
+                    pageSize: pageSize * 1,
+                    pageIndex: pageIndex * 1,
+                    products: list
+                })
             }
             var list = await ProductModel.find({deleted: false}).exec();
-            return res.status(200).json(list)
+            return res.status(200).json({
+                msg: "Get products successfully!",
+                totalPage: totalPage,
+                pageSize: pageSize * 1,
+                pageIndex: pageIndex * 1,
+                products: list
+            })
         } catch (error) {
             return res.json(500).status({
                 msg: error.message
@@ -100,16 +112,69 @@ class ProductController {
             })
         }
     }
-    async ImportProduct(req,res,next,filePath) {
+    async ImportProduct(req,res,next) {
         try {
-            console.log(filePath);
+            const filePath = req.file.path
             const dataJson = commonjs.importExceltoMongo(filePath, "Sheet1");
-            await ProductModel.insertMany(dataJson)
-            return res.status(200).json({
+            var rs = await ProductModel.insertMany(dataJson["Sheet1"])
+            return rs.length == dataJson["Sheet1"].length ? res.status(200).json({
                 status: 200,
                 msg: "Import excel successfully!"
+            }) :  res.status(203).json({
+                status: 203,
+                msg: "Import excel unsuccessfully!"
             })
         } catch (error) {
+            return res.status(500).json({
+                msg: error.message
+            })
+        }
+    }
+    async ExportProduct(req,res,next) {
+        try {
+            let workbook = new excel.Workbook();
+            let worksheet  = workbook.addWorksheet("Products");
+            //config
+            worksheet.columns = [
+                {header: "Tên sản phẩm", key: "productName", width: 5},
+                 {key: "quanlity", header: "Số lượng", width: 5 },
+                 {key: "price", header: "Gía thành", width: 5},
+                 {key: "description", header: "Mô tả", width: 5},
+                 {key: "user_manual", header: "Hướng dẫn sử dụng", width: 5},
+                 {key: "Ingredient", header: "Thành phần", width: 5},
+                 {key: "Preserve", header: "Bảo quản", width: 5},
+                 {key: "brandId", header: "Mã thương hiệu", width: 5},
+                 {key: "origin", header: "Xuất xứ", width: 5},
+                 {key: "views", header: "Lượt xem", width: 5},
+                 {key: "EvaluteCount", header: "Đánh giá", width: 10},
+                 {key: "InputDay_warehouse", header: "Ngày nhập kho", width: 10},
+                 {key: "package", header: "Đơn vị", width: 10},
+                 {key: "createAt", header: "Ngày tạo", width: 10 },
+                 {key: "updateAt", header: "Ngày cập nhật", width: 10},
+            ]
+
+
+            //get all product
+            const listProduct = await ProductModel.find({deleted: false}).exec(); 
+            worksheet.addRows(listProduct);
+            res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"); 
+            res.setHeader("Content-Disposition", "attachment; filename=" + "Products.xlsx");
+
+            return workbook.xlsx.write(res).then(() => 
+                res.status(200).end()
+            )
+        } catch (error) {
+            return res.status(500).json({
+                msg: error.message
+            })
+        }
+    }
+
+
+    async UploadImages(req,res,next) {
+        try {
+                        
+        } catch(error) {
             return res.status(500).json({
                 msg: error.message
             })
