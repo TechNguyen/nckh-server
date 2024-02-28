@@ -4,11 +4,8 @@ const Trademark = new Schema({
         type: String,
         unique: true,
     },
-    createat: {type: Date, default: Date.now},
-    updateat: {type: Date, default: null},
-    deleteat: {type: Date, default: null},
-
-},  {id: true})
+    deleted: {type: Boolean, default :false}
+},  {id: true, timestamps: true})
 
 
 export default mongoose.model('trademark', Trademark)

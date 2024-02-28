@@ -127,8 +127,6 @@ class authController {
             })
         }
     }
-    
-
     async GetAllAccount(req,res,next) {
         try {
             const data = await AccountUserModel.find({deleted: false}).exec();
