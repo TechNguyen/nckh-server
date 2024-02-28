@@ -5,10 +5,11 @@ import Common from "../../../Helper/Common.js";
 import excel from 'exceljs'
 var commonjs = new Common();
  
-class ProductController {
+class ProductController {       
     async GetProductbyPage(req,res,next) {
         try {
             let { pageSize , pageIndex} = req.query
+            console.log("check",req.query);
             const totalPage = await ProductModel.countDocuments({deleted: false});
             if((pageSize * 1) <= 0 || !Boolean(pageSize)) {
                 pageSize = 10;
