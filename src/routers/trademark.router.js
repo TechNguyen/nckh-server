@@ -6,5 +6,7 @@ const trademark = new TrademarkeControler();
 
 router.get('/getAll', trademark.getAllTrademarke)
 router.post('/create', trademark.createTrademarke)
+router.put('/update', trademark.updateTrademarke)
+router.delete('/delete', trademark.deleteTrademark)
 
 export default router

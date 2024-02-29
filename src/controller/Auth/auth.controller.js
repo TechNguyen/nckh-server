@@ -1,9 +1,9 @@
 import AccountUserModel from '../../model/AccountUser.model.js'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import ProfilleController from '../Profile/Profile.controller.js'
-import ProfileModel from '../../model/Profile.model.js';
-const profile = new ProfilleController();
+// import ProfilleController from '../Profile/Profile.controller.js'
+// import ProfileModel from '../../model/Profile.model.js';
+// const profile = new ProfilleController();
 
 class authController {
     async signUp(req,res, next) {

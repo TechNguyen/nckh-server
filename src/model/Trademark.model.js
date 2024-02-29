@@ -3,6 +3,7 @@ const Trademark = new Schema({
     name: {
         type: String,
         unique: true,
+        match: /^[a-zA-Z\sáàảãạăắằẳẵặâấầẩẫậéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵđ]+$/u
     },
     deleted: {type: Boolean, default :false}
 },  {id: true, timestamps: true})
