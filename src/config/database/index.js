@@ -2,7 +2,7 @@ import mongoose from "mongoose"
 async function connect() {
     console.log("test",process.env.MONGODB_PORT)
     try {
-        const conn = await mongoose.connect('mongodb+srv://cuongcntt04:vomanhcuong0612@cuong.9ew8xw0.mongodb.net/?retryWrites=true&w=majority&appName=cuong', {
+        const conn = await mongoose.connect('mongodb://127.0.0.1:27017/mydb', {
             useNewUrlParser: true,
             useUnifiedTopology: true,
         })

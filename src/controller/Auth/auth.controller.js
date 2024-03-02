@@ -1,9 +1,43 @@
 import AccountUserModel from '../../model/AccountUser.model.js'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-// import ProfilleController from '../Profile/Profile.controller.js'
-// import ProfileModel from '../../model/Profile.model.js';
-// const profile = new ProfilleController();
+import ProfilleController from '../Profile/Profile.controller.js'
+import ProfileModel from '../../model/Profile.model.js';
+const profile = new ProfilleController();
+const  generateToken = async (payload)=>{
+    const {_id,username} = payload;
+    console.log("id",_id)
+    const accessToken = await jwt.sign(
+        {_id,username},
+        process.env.ACCESS_TOKEN_SECRECT,
+        {
+            expiresIn:'5m'
+        }
+    )
+    console.log("access in line",accessToken)
+    const refreshToken = await jwt.sign(
+        {_id,username},
+        process.env.REFREST_TOKEN_SECRECT,
+        {
+            expiresIn:'3h'
+        } 
+    )
+    return {accessToken,refreshToken};
+}
+    const updateRefreshToken= async (id,refreshToken)=>{
+        try{
+            var user =await AccountUserModel.findById({ _id: id }).exec();
+            if(user == null){
+               return null;
+            }else{
+                user.refreshToken = refreshToken;
+                await user.save();
+                return user;
+            }
+        }catch(err){
+           console.log(err)
+        }
+    }
 
 class authController {
     async signUp(req,res, next) {
@@ -23,7 +57,7 @@ class authController {
                 })
                 if(acc != null) {
                     const profile = new ProfileModel({
-                        account_id: acc.id
+                        account_id: acc._id
                     })
                     await ProfileModel.create(profile)
                     return res.status(200).json({
@@ -32,20 +66,21 @@ class authController {
                     })
                 }         
             }
-        } catch {
+        } catch(err) {
             return res.status(404).json({
                 status: 500,
-                message: "Error when creare new account"
+                message: err.message
             })
         }
     }
-
     async signIn(req,res,next) {
         try {
             let {username, password} = req.body;
+            console.log("username",username);
             const account = await AccountUserModel.findOne({
                 username: username
             }).exec();
+            console.log("acc",account)
             if(account == null) {
                 return res.status(401).json({
                     statuscode: 401,
@@ -54,24 +89,24 @@ class authController {
             }else {
                 let check = await bcrypt.compare(password, account.password);
                 if(check) {
-                    let profileUser = await profile.GetPofileAuth(account.id);
-                    let accesstoken = "";
+                    console.log('ttrue')
+                    const tokens = await generateToken(account)
+                    console.log('accsc',tokens.accessToken)
+
+                    let profileUser = await profile.GetPofileAuth(account._id);
+                   await updateRefreshToken(account._id,tokens.refreshToken)
                     if(profileUser) {
-                        accesstoken = jwt.sign({
-                            username: account.username,
-                            profile: profileUser,
-                        }, process.env.JWT_KEY , { expiresIn: '3h' })
                         return res.status(200).json({
                             statuscode: 200,
                             data: {
-                                accesstoken: accesstoken
+                                accesstoken: tokens.accessToken,
+                                profile:profileUser
                             },
                             message: "Successfully!"
                         })
                     } else {
                         return res.status(200).json({
                             statuscode: 200,
-                            data: account,
                             message: "Successfully!"
                         })
                     }
@@ -82,14 +117,36 @@ class authController {
                     })
                 }
             }
-        } catch(error) {
+        } catch(err) {
             return res.status(500).json({
                 status: 500,
-                message: error
+                message: err.error
             })
         } 
     }
-
+    async token(req,res,next){
+        try{
+            const refreshToken = req.body.refreshToken;
+            if (!refreshToken) return res.sendStatus(401);
+            const user =await AccountUserModel.findOne({refreshToken:refreshToken});
+            if(!user) return res.sendStatus(401);
+            const tokens = await generateToken(user);
+            console.log("f",tokens)
+            jwt.verify(refreshToken,process.env.REFREST_TOKEN_SECRECT,(err,user)=>{
+                if(err){
+                    res.sendStatus(402);
+                }
+                res.status(200).json({
+                    msg:"Success",
+                    accessToken: tokens.accessToken
+                })
+            })
+        }catch(err){
+            return res.satus(500).json({
+                err:err.error
+            })
+        }
+    }
     async ResetPassWord(req,res,next) {
         try {
             const {username,confirnPass,newPassword} = req.body;
