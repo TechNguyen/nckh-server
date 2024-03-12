@@ -1,12 +1,10 @@
 import mongoose from "mongoose"
 async function connect() {
-    console.log("test",process.env.MONGODB_PORT)
     try {
-        const conn = await mongoose.connect('mongodb://127.0.0.1:27017/mydb', {
+        const conn = await mongoose.connect(`${process.env.MONGOSERVER}://${process.env.MONGOHOST}:${process.env.MONGOPORT}/${process.env.MONGOCOLLECTION}`, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
         })
-        console.log("hihi");
         console.log(`Connected to database ${conn.connection.port}`)
     } catch (err) {
         console.log(`Error ${err.message}`)

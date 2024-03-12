@@ -8,31 +8,17 @@ var commonjs = new Common();
 class ProductController {       
     async GetProductbyPage(req,res,next) {
         try {
-            let { pageSize , pageIndex} = req.query
-            console.log("check",req.query);
-            const totalPage = await ProductModel.countDocuments({deleted: false});
-            if((pageSize * 1) <= 0 || !Boolean(pageSize)) {
-                pageSize = 10;
-            }
-            if((pageIndex * 1) <= 0 || !Boolean(pageIndex)) {
-                pageIndex = 1;
-            }
-            if(pageIndex != null && pageSize != null) {
-                var list = await ProductModel.find({deleted: false}).skip((pageIndex - 1) * pageSize).limit(pageSize).exec();
-                return res.status(200).json({
-                    msg: "Get products successfully!",
-                    totalPage: totalPage,
-                    pageSize: pageSize * 1,
-                    pageIndex: pageIndex * 1,
-                    products: list
-                })
-            }
-            var list = await ProductModel.find({deleted: false}).exec();
+            let pageSize = req.query.pageSize || 10;
+            let pageIndex =  req.query.pageIndex || 1;
+            const totalItem = await ProductModel.countDocuments({deleted: false});
+            const total = Math.ceil(totalItem / pageSize);
+            var list = await ProductModel.find({deleted: false}).skip((pageIndex - 1) * pageSize).populate('images').limit(pageSize).exec();
             return res.status(200).json({
                 msg: "Get products successfully!",
-                totalPage: totalPage,
-                pageSize: pageSize * 1,
-                pageIndex: pageIndex * 1,
+                totalPage: total,
+                totalitem: totalItem,
+                pageSize: parseInt(pageSize),
+                pageIndex: parseInt(pageIndex),
                 products: list
             })
         } catch (error) {
@@ -45,9 +31,9 @@ class ProductController {
         try {
             const ProductMD = new ProductModel(req.body);
             const rs = await ProductModel.create(ProductMD);
-            return res.status(ts)
+            return res.status(200).json(rs)
         } catch (error) {
-            return res.json(500).status({
+            return res.status(500).json({
                 msg: error.message
             })
         }
@@ -178,6 +164,20 @@ class ProductController {
         } catch(error) {
             return res.status(500).json({
                 msg: error.message
+            })
+        }
+    }
+
+    async GetProductById(req,res,next) {
+        try {
+            const id = req.query.id;
+            const rs = await ProductModel.findById(id).populate('images').exec();
+            return rs != null ? res.status(200).json(rs) : res.status(203).json({
+                message: "Not exits product"
+            })
+        } catch(error) {
+            return res.json(500).json({
+                message: error.message
             })
         }
     }

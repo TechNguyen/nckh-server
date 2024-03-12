@@ -4,7 +4,7 @@ const imagesProduct = new Schema({
     imgUrl:{type:String},
     extension: {type: String},
     uploadAt: {type: Date, default: Date.now},
-    ProductID: {type: String},
+    ProductID: {type: Schema.Types.ObjectId, ref: 'Products'},
 }, {id: true})
 
 

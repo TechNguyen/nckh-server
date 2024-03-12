@@ -20,7 +20,8 @@ const product = new Schema({
     updateAt: {type: Date},
     updated: {type: Boolean},
     deleted: {type: Boolean, default: false},
-    deleteAt: {type: Date}
+    deleteAt: {type: Date},
+    images: [{ type: Schema.Types.ObjectId, ref: 'imagesProduct'}]
 }, {id: true})
 
 

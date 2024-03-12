@@ -1,3 +1,4 @@
+import ProductModel from '../../model/Product.model.js';
 import imagesProduct from '../../model/imagesproduct.model.js'
 class uploadImageController {
     async uploadImage(req,res,next){
@@ -11,22 +12,21 @@ class uploadImageController {
         const imgUrl =  link_img.path;
         const extension = link_img.mimetype.split('/')[1]
         const data = {name,imgUrl,extension,productId}
-        try{
+        try {
             const imgMo = new imagesProduct(data);
-            console.log("testd",imgMo)
             const im =  await imagesProduct.create(imgMo);
-            res.status(201).json({
+            const product = await ProductModel.findById(productId);
+            product.images.push(im._id);
+            await product.save()
+            res.status(200).json({
                 msg:"success",
                 img:im
             })
-            res.send(link_img);
         }catch(err){
             res.status(500).json({
-                msg:"uplaod unscess",
-                errd : err
+                msg:"upload unscess",
             })
         }
-
     }
 }
 export default uploadImageController
