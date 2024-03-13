@@ -1,5 +1,12 @@
+import { ObjectId } from "mongodb";
 import mongoose,{ Schema } from "mongoose";
 const product = new Schema({
+    _id:{
+        type: ObjectId,
+        required: true,
+        auto: true,
+        ref:'order'
+    },
     productName: {
         type: String,
         required: [true, "Product Name required"]
@@ -7,11 +14,9 @@ const product = new Schema({
     quanlity: {type: Number},
     price: {type: Number},
     description: {type: String},
-    user_manual: {type: String},
-    Ingredient: {type: String},
-    Preserve: {type: String},
     brandId: {type: String},
     origin: {type: String},
+    rate:{type:Number},
     views: {type: Number},
     EvaluteCount: {type: Number},
     InputDay_warehouse: {type: Date},

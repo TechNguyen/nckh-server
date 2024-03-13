@@ -19,7 +19,6 @@ class uploadImageController {
                 msg:"success",
                 img:im
             })
-            res.send(link_img);
         }catch(err){
             res.status(500).json({
                 msg:"uplaod unscess",

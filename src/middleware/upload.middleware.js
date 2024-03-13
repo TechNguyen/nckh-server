@@ -5,7 +5,7 @@ import cloudinary from '../config/cloudinary.js'
 const storage  = new CloudinaryStorage({
     cloudinary: cloudinary,
     folder:'FOOD',
-    allowedFormats:['jpg','png','jpeg'],
+    allowedFormats:['jpg','png','jpeg','webp'],
     transformation:[{width:500,height:500,crop:'limit'}]
 })
 

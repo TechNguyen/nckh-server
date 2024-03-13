@@ -11,7 +11,7 @@ const  generateToken = async (payload)=>{
         {_id,username},
         process.env.ACCESS_TOKEN_SECRECT,
         {
-            expiresIn:'5m'
+            expiresIn:'1h'
         }
     )
     console.log("access in line",accessToken)
@@ -19,7 +19,7 @@ const  generateToken = async (payload)=>{
         {_id,username},
         process.env.REFREST_TOKEN_SECRECT,
         {
-            expiresIn:'3h'
+            expiresIn:'1d'
         } 
     )
     return {accessToken,refreshToken};
@@ -100,6 +100,7 @@ class authController {
                             statuscode: 200,
                             data: {
                                 accesstoken: tokens.accessToken,
+                                refreshToken:tokens.refreshToken,
                                 profile:profileUser
                             },
                             message: "Successfully!"

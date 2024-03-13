@@ -44,10 +44,14 @@ class ProductController {
     async CreatePro(req,res,next) {
         try {
             const ProductMD = new ProductModel(req.body);
+            console.log("pro",ProductMD)
             const rs = await ProductModel.create(ProductMD);
-            return res.status(ts)
+            return res.status(200).json({
+                msg:"success",
+                rss:rs
+            })
         } catch (error) {
-            return res.json(500).status({
+            return res.status(500).json({
                 msg: error.message
             })
         }
