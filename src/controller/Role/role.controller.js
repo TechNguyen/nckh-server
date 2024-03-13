@@ -73,7 +73,27 @@ class RoleController {
             })
         }
     }
+
+
+    async GetById(id) {
+        try {
+            const role = await RoleModel.findById(id);
+            return role
+        } catch (error) {
+            return null;
+        }
+    }
     
+
+    async GetByUser(roleName) {
+        try {
+            const role = await RoleModel.find({roleName: roleName});
+            return role != null ? role : ""
+        } catch (error) {
+            return null;
+        }
+    }
+
 
 }
 

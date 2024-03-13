@@ -3,28 +3,30 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import ProfilleController from '../Profile/Profile.controller.js'
 import ProfileModel from '../../model/Profile.model.js';
+import RoleController from '../Role/role.controller.js';
+
 const profile = new ProfilleController();
-const  generateToken = async (payload)=>{
-    const {_id,username} = payload;
-    console.log("id",_id)
+const role = new RoleController();
+const generateToken = async (payload)=>{
+    const {_id,username,roleId} = payload;
+    const roleName = await role.GetById(roleId)
     const accessToken = await jwt.sign(
-        {_id,username},
+        {_id,username,roleId,roleName},
         process.env.ACCESS_TOKEN_SECRECT,
         {
-            expiresIn:'1h'
+            expiresIn: '5h'
         }
     )
-    console.log("access in line",accessToken)
     const refreshToken = await jwt.sign(
-        {_id,username},
+        {_id,username,roleId,roleName},
         process.env.REFREST_TOKEN_SECRECT,
         {
-            expiresIn:'1d'
+            expiresIn: '24h'
         } 
     )
     return {accessToken,refreshToken};
 }
-    const updateRefreshToken= async (id,refreshToken)=>{
+    const updateRefreshToken = async (id,refreshToken)=>{
         try{
             var user =await AccountUserModel.findById({ _id: id }).exec();
             if(user == null){
@@ -43,6 +45,7 @@ class authController {
     async signUp(req,res, next) {
         try {
             let {username,password} = req.body
+            let roleId = req.body.roleId || await role.GetByUser("user")
             let hashpass = await bcrypt.hash(password, 13);
             let user = await AccountUserModel.find({ username: username})
             if(user.length != 0) {
@@ -51,9 +54,11 @@ class authController {
                     message: "Username has been already !"
                 })
             } else {
+                
                 const acc = await AccountUserModel.create({
                     username: username,
-                    password: hashpass
+                    password: hashpass,
+                    roleId: roleId
                 })
                 if(acc != null) {
                     const profile = new ProfileModel({
@@ -76,33 +81,31 @@ class authController {
     async signIn(req,res,next) {
         try {
             let {username, password} = req.body;
-            console.log("username",username);
             const account = await AccountUserModel.findOne({
                 username: username
             }).exec();
-            console.log("acc",account)
             if(account == null) {
-                return res.status(401).json({
+                return res.status(203).json({
                     statuscode: 401,
                     message: "Unauthorized!"
                 }) 
             }else {
                 let check = await bcrypt.compare(password, account.password);
                 if(check) {
-                    console.log('ttrue')
+                    const roleIds = Boolean(account.roleId) ? account.roleId : await role.GetByUser("user");
+                    const roleName = await role.GetById(roleIds)
                     const tokens = await generateToken(account)
-                    console.log('accsc',tokens.accessToken)
-
                     let profileUser = await profile.GetPofileAuth(account._id);
-                   await updateRefreshToken(account._id,tokens.refreshToken)
+                    await updateRefreshToken(account._id, tokens.refreshToken)
                     if(profileUser) {
                         return res.status(200).json({
                             statuscode: 200,
                             data: {
                                 accesstoken: tokens.accessToken,
-                                refreshToken:tokens.refreshToken,
-                                profile:profileUser
+                                profile: profileUser,
+                                roleName: roleName.roleName
                             },
+
                             message: "Successfully!"
                         })
                     } else {
@@ -132,7 +135,6 @@ class authController {
             const user =await AccountUserModel.findOne({refreshToken:refreshToken});
             if(!user) return res.sendStatus(401);
             const tokens = await generateToken(user);
-            console.log("f",tokens)
             jwt.verify(refreshToken,process.env.REFREST_TOKEN_SECRECT,(err,user)=>{
                 if(err){
                     res.sendStatus(402);
@@ -151,27 +153,22 @@ class authController {
     async ResetPassWord(req,res,next) {
         try {
             const {username,confirnPass,newPassword} = req.body;
-            const id = req.params.id;
             if(confirnPass != newPassword) {
-                return res.status(204).json(responStatus("New password not"))
+                return res.status(204).json(responStatus("New password not match"))
             }
             const user = await AccountUserModel.find({
-                _id: id,
+                username: username,
             }).exec();
+
             if(user == null) {
                 return res.status(203).json({
                     msg: "Not exits user"
                 })
             } else {
                 let hashpass = await bcrypt.hash(newPassword, 13);
-                const newAccount = new AccountUserModel({
-                    _id: id,
-                    username: username,
-                    password: hashpass
-                })
                 const userUpdate = await AccountUserModel.findOneAndUpdate({
-                    _id: id,
-                }, newAccount,  {new : true}).exec();
+                    username: username,
+                }, {password: hashpass}, {new : true}).exec();
                 return userUpdate != null ? res.status(200).json({
                     msg: "Reset password successfully"
                 }) : res.status(204).json({

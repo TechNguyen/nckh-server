@@ -9,16 +9,14 @@ class ProfileControler{
                 })
             }else{
                 let profile = await ProfileModel.findOne({account_id: String(id)}).exec();
-                console.log("pro",profile)
                 if(profile == null){
                     return null;
-                    
                 }else{
                   return profile;
                 }
             }
         }catch(err){
-           console.loh(err)
+           return null;
         }
     }
     async GetPofileAuthInClient(req,res,next) {
@@ -64,7 +62,6 @@ class ProfileControler{
     async updateProfile(req,res,next){
         const {id} = req.query;
         const data = req.body;
-        console.log("datt",typeof data)
         if(id == null || data){
             return res.status(400).json({
                 msg:"please check id or data update"
@@ -72,12 +69,10 @@ class ProfileControler{
         }else{
             try{
                 data.account_id = id;
-                console.log("data",data)
                 const uddateProfile = await ProfileModel.findOneAndUpdate({account_id:id},data,{
                     new:true,
                     runValidators:true
                 }).exec();
-                console.log("dd",uddateProfile)
                 uddateProfile.updatedAt = Date.now();
                 await uddateProfile.save();
                 return res.status(200).json({

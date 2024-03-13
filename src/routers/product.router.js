@@ -13,9 +13,12 @@ const storeage = multer.diskStorage({
 })
 const upload = multer({ storage: storeage})
 const uploadImage = multer({ storage: storeage})
+
 const product = new ProductController();
+
 router.post('/create', product.CreatePro)
 router.get('/get', product.GetProductbyPage)
+router.get('/detail', product.GetProductById)
 router.put('/update', product.Update)
 router.delete('/deletesoft', product.DeleteSoft)
 router.delete('/delete', product.Delete)

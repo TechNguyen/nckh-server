@@ -14,7 +14,7 @@ const AccountUserSchema = new Schema({
     updateat: {type: Date, default: null},
     deleteat: {type: Date, default: null},
     deleted: {type: Number, default: 0},
-    roleId:  {type: String },
+    roleId:  {type: String},
     refreshToken: {
         type: String,
         default: null

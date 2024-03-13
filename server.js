@@ -16,13 +16,11 @@ const __dirname = path.dirname(__filename);
 
 
 
+app.use(bodyParser.json());
 
-app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({
     extended: false
 }))
-
-
 //Connect to database
 db.connect()
 //cors
@@ -31,9 +29,6 @@ app.use(morgan('combined'))
 //Route
 appMiddleware(app);
 Route(app);
-
-
-
 //static file
 app.use(express.static(path.join(__dirname,'public')));
 
