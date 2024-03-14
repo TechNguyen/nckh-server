@@ -156,8 +156,6 @@ class ProductController {
             })
         }
     }
-
-
     async UploadImages(req,res,next) {
         try {
                         
@@ -167,7 +165,6 @@ class ProductController {
             })
         }
     }
-
     async GetProductById(req,res,next) {
         try {
             const id = req.query.id;
@@ -182,6 +179,4 @@ class ProductController {
         }
     }
 }
-
-
 export default ProductController
