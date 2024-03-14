@@ -1,7 +1,7 @@
 import mongoose from "mongoose"
 async function connect() {
     try {
-        const conn = await mongoose.connect(`${process.env.MONGOSERVER}://${process.env.MONGOHOST}:${process.env.MONGOPORT}/${process.env.MONGOCOLLECTION}`, {
+        const conn = await mongoose.connect('mongodb+srv://cuongcntt04:vomanhcuong0612@cuong.9ew8xw0.mongodb.net/?retryWrites=true&w=majority&appName=cuong', {
             useNewUrlParser: true,
             useUnifiedTopology: true,
         })
