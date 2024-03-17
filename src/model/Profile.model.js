@@ -4,16 +4,11 @@ const Profile = new Schema({
         type: String,
         unique: true,
     },
-    fullName:{ type:String},
-    address:{ type:String},
-    phoneNumber:{ type:String},
-    // email: {
-    //     type: String,
-    //     default:null
-        
-    // },
-    birthday:{type:Date},
-    deleted: {type: Boolean, default :false}
+    fullName:{ type:String,default:""},
+    address:{ type:String,default:""},
+    phoneNumber:{ type:String,default:""},
+    birthday:{type:Date,default: new Date()},
+    note:{type:String}
 },  {id: true, timestamps: true})
 
 

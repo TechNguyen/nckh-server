@@ -34,20 +34,36 @@ class OrderController {
     }
     async createOrder(req,res,next){
         try{
-            const idUser = req.user_id;
-            const {productId,quantity,price} = req.body;
-            if(!productId || !quantity || !price){
+            const data = req.body;
+            
+            if(!data){
                 return res.status(401).json({
                     msg:"Please enter productid, quantity,price"
                 })
             }
             else{
-                const orderNew = new OrderModel({userId:idUser,productId:new ObjectId(productId),quantity,price})
-                const rp = await OrderModel.create(orderNew);
-                return res.status(200).json({
-                    msg:"add order success",
-                    data: rp
-                })
+                const promises = data.map(docData => {
+                    const doc = new OrderModel(docData);
+                    return doc.save();
+                });
+                
+                // Chờ tất cả các promise hoàn thành
+                Promise.all(promises)
+                    .then(savedDocuments => {
+                        res.status(200).json({
+                            msg:"success",
+                            data:savedDocuments
+                        })
+                    })
+                    .catch(error => {
+                        console.error('Error saving documents:', error);
+                    });
+                // const orderNew = new OrderModel({userId:userId,productId:new ObjectId(productId),quantity,price})
+                // const rp = await OrderModel.create(orderNew);
+                // return res.status(200).json({
+                //     msg:"add order success",
+                //     data: rp
+                // })
             }
         }catch(error){
             res.status(501).json({

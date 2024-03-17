@@ -27,6 +27,28 @@ class ProductController {
             })
         }
     }
+    async findProductByName(req,res,next){
+        try {
+            let pageSize = req.query.pageSize || 8;
+            let pageIndex =  req.query.pageIndex || 1;
+            const totalItem = await ProductModel.countDocuments({deleted: false});
+            const name = req.query.name;
+            const total = Math.ceil(totalItem / pageSize);
+            var list = await ProductModel.find({deleted: false,productName:{ $regex: new RegExp(`^${name}`, 'i') }}).skip((pageIndex - 1) * pageSize).populate('images').limit(pageSize).exec();
+            return res.status(200).json({
+                msg: "Get products successfully!",
+                totalPage: total,
+                totalitem: totalItem,
+                pageSize: parseInt(pageSize),
+                pageIndex: parseInt(pageIndex),
+                products: list
+            })
+        } catch (error) {
+            return res.json(500).status({
+                msg: error.message
+            })
+        }
+    }
     async CreatePro(req,res,next) {
         try {
             const ProductMD = new ProductModel(req.body);
@@ -120,6 +142,7 @@ class ProductController {
     }
     async ExportProduct(req,res,next) {
         try {
+            console.log("hihihaha vao day")
             let workbook = new excel.Workbook();
             let worksheet  = workbook.addWorksheet("Products");
             //config
@@ -179,5 +202,6 @@ class ProductController {
             })
         }
     }
+    
 }
 export default ProductController

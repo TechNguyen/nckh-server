@@ -15,6 +15,7 @@ const AccountUserSchema = new Schema({
     deleteat: {type: Date, default: null},
     deleted: {type: Number, default: 0},
     roleId:  {type: String},
+    productIdCart: [{ type: Schema.Types.ObjectId, ref: 'Products'}],
     refreshToken: {
         type: String,
         default: null

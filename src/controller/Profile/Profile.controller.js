@@ -21,7 +21,7 @@ class ProfileControler{
     }
     async GetPofileAuthInClient(req,res,next) {
         try{
-            const {id} = req.query;
+            const id = req.user_id;
             if(id == null){
               return  res.status(400).json({
                     msg:"Please check the account id"
@@ -42,33 +42,41 @@ class ProfileControler{
             })
         }
     }
-    // async createProfile(req,res,next){
-    //     try{
-    //         const newProfile = new ProfileModel(res.body);
-    //         if(newProfile == null){
-    //             return res.status(400).json({
-    //                 msg:"please check data profile"
-    //             })
-    //         }else{
-    //             const profile = await ProfileModel.create(newProfile);
-    //             res.status(200).json(profile);
-    //         }
-    //     }catch(err){
-    //         return res.status(501).json({
-    //             msg:err.error
-    //         })
-    //     }
-    // }
+    async createProfile(req,res,next){
+        try{
+            let id = req.user_id;
+            const data = req.body;
+            if(!data){
+                return res.status(500).json({
+                    msg:"Please enter data"
+                })
+            }
+            const newProfile = new ProfileModel({account_id:id,...data});
+            if(newProfile == null){
+                return res.status(400).json({
+                    msg:"please check data profile"
+                })
+            }else{
+                const profile = await ProfileModel.create(newProfile);
+                res.status(200).json(profile);
+            }
+        }catch(err){
+            return res.status(501).json({
+                msg:err.error
+            })
+        }
+    }
     async updateProfile(req,res,next){
-        const {id} = req.query;
+        const id = req.user_id;
         const data = req.body;
-        if(id == null || data){
+        console.log('id',id)
+        console.log('data',data)
+        if(id == null || !data){
             return res.status(400).json({
                 msg:"please check id or data update"
             })
         }else{
             try{
-                data.account_id = id;
                 const uddateProfile = await ProfileModel.findOneAndUpdate({account_id:id},data,{
                     new:true,
                     runValidators:true

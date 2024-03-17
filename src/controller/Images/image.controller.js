@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb';
 import ProductModel from '../../model/Product.model.js';
 import imagesProduct from '../../model/imagesproduct.model.js'
 class uploadImageController {
@@ -16,15 +17,22 @@ class uploadImageController {
             const imgMo = new imagesProduct(data);
             const im =  await imagesProduct.create(imgMo);
             const product = await ProductModel.findById(productId);
-            product.images.push(im._id);
+            console.log("checl pr",product)
+            if(!product){
+                return res.status(401).json({
+                    msg:"no product"
+                })
+            }
+            product.images.push((im._id));
             await product.save()
             res.status(200).json({
                 msg:"success",
                 img:im
             })
-        }catch(err){
+        }catch(error){
             res.status(500).json({
                 msg:"upload unscess",
+                err: error.message
             })
         }
     }
