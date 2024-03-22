@@ -11,6 +11,10 @@ const product = new Schema({
         type: String,
         required: [true, "Product Name required"]
     },
+    userId:{
+        type:ObjectId,
+        ref:'accountusers'
+    },
     quanlity: {type: Number},
     price: {type: Number},
     description: {type: String},
@@ -27,7 +31,7 @@ const product = new Schema({
     deleted: {type: Boolean, default: false},
     deleteAt: {type: Date},
     images: [{ type: Schema.Types.ObjectId, ref: 'imagesProduct'}]
-}, {id: true})
+}, )
 
 
 export default mongoose.model('Products', product);

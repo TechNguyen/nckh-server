@@ -5,16 +5,10 @@ class OrderController {
     async getOrderByIdUser(req, res, next) {
         try {
             const idUser = req.user_id;
+            console.log('check id ưser',idUser)
             console.log(typeof idUser);
-            let data = await OrderModel.aggregate([
-                {
-                    $match: {
-                        userId: idUser
-                    },
-                }
-                
-            ]);
-    
+            let data = await OrderModel.find({ idAdmin: idUser}).populate(['userId','productId']);
+            console.log('datttt',data)
             if (!data || data.length === 0) {
                 res.status(404).json({
                     msg: "No order found for the user"
@@ -35,6 +29,7 @@ class OrderController {
     async createOrder(req,res,next){
         try{
             const data = req.body;
+            console.log('dfda',req.body)
             
             if(!data){
                 return res.status(401).json({

@@ -54,6 +54,26 @@ class CartController{
             })
         }
     }
+    async getCarCounttByIdUser(req,res,next){
+        try{
+            let id = req.user_id;
+            console.log('check',id)
+            const rs = await CartModel.find({userId:id}).count().exec();
+            console.log("ha",rs)
+           if(rs){
+              res.status(200).json(rs)
+           }else{
+                res.status(203).json({
+                    msg: "No cart for user"
+                })
+           }
+        }catch(error){
+            return res.status(500).json({
+                status:500,
+                message: error.message
+            })
+        }
+    }
     async DeleteProInCart(req,res,next){
         try{
             let id = req.query.id;

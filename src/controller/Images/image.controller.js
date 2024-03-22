@@ -3,6 +3,8 @@ import ProductModel from '../../model/Product.model.js';
 import imagesProduct from '../../model/imagesproduct.model.js'
 class uploadImageController {
     async uploadImage(req,res,next){
+        console.log('req',req.body)
+        console.log('req222',req.files)
         const link_img = req.files['img'][0];
         const {name,productId} = req.query;
         if(!name || !productId){
@@ -23,7 +25,8 @@ class uploadImageController {
                     msg:"no product"
                 })
             }
-            product.images.push((im._id));
+            const ImageExit = await imagesProduct
+            product.images[0] = im._id;
             await product.save()
             res.status(200).json({
                 msg:"success",

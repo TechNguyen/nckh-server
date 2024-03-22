@@ -62,7 +62,7 @@ class authController {
                 })
                 if(acc != null) {
                     const profile = new ProfileModel({
-                        account_id: acc._id
+                        _id: acc._id
                     })
                     await ProfileModel.create(profile)
                     return res.status(200).json({
@@ -102,7 +102,6 @@ class authController {
                             statuscode: 200,
                             data: {
                                 accesstoken: tokens.accessToken,
-                                profile: profileUser,
                                 roleName: roleName.roleName
                             },
 
@@ -127,6 +126,26 @@ class authController {
                 message: err.error
             })
         } 
+    }
+    async getMe(req,res,next){
+        try{
+            const user_id = req.user_id;
+            const user = await AccountUserModel.findById(user_id).exec();
+            if(user){
+                res.status(200).json({
+                    username:user.username,
+                    id:user._id
+                })
+            }else{
+                res.status(204).json({
+                    msg:"No user"
+                })
+            }
+        }catch(err){
+            return res.satus(500).json({
+                err:err.error
+            })
+        }
     }
     async token(req,res,next){
         try{

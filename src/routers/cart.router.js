@@ -6,5 +6,6 @@ const cart = new CartController();
 
 router.post('/create',checkAccessToken, cart.createProductToCart)
 router.get('/get',checkAccessToken, cart.getCartByIdUser)
+router.get('/getCount',checkAccessToken, cart.getCarCounttByIdUser)
 router.delete('/delete',checkAccessToken, cart.DeleteProInCart)
 export default router

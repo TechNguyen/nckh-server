@@ -49,12 +49,46 @@ class ProductController {
             })
         }
     }
+    async getProductByUserId(req,res,next){
+        try {
+            let id = req.user_id;
+            let pageSize = req.query.pageSize || 10;
+            let pageIndex =  req.query.pageIndex || 1;
+            const totalItem = await ProductModel.countDocuments({deleted: false});
+            const total = Math.ceil(totalItem / pageSize);
+            var list = await ProductModel.find({userId:id}).skip((pageIndex - 1) * pageSize).populate('images').limit(pageSize).exec();
+            return res.status(200).json({
+                msg: "Get products successfully!",
+                totalPage: total,
+                totalitem: totalItem,
+                pageSize: parseInt(pageSize),
+                pageIndex: parseInt(pageIndex),
+                products: list
+            })
+        } catch (error) {
+            return res.json(500).status({
+                msg: error.message
+            })
+        }
+    }
     async CreatePro(req,res,next) {
         try {
-            const ProductMD = new ProductModel(req.body);
+            let userId = req.user_id;
+            let productName = req.body.productName;
+            const data = {...req.body,userId:userId}
+            console.log('data',data)
+            const ProductMD = new ProductModel({...req.body,userId});
+            const exitProduct = await ProductModel.findOne({productName:productName,userId:userId}).exec();
             console.log("pro",ProductMD)
-            const rs = await ProductModel.create(ProductMD);
-            return res.status(200).json(rs)
+            console.log('check ext',exitProduct)
+            if(!exitProduct){
+                const rs = await ProductModel.create(ProductMD);
+                return res.status(200).json(rs)
+            }else{
+                return res.status(500).json({
+                    msg:"product exits"
+                })
+            }
         } catch (error) {
             return res.status(500).json({
                 msg: error.message
@@ -65,6 +99,7 @@ class ProductController {
         try {
             const id = req.query.id;
             const data = req.body
+            console.log('dataa',data)
             const updatePro = await ProductModel.findByIdAndUpdate(id, data, {
                 new: true,
                 runValidators: true,
@@ -72,7 +107,7 @@ class ProductController {
             updatePro.updated = true;
             updatePro.updateAt = Date.now();
             await updatePro.save();
-            return res.status(203).json(updatePro)
+            return res.status(200).json(updatePro)
         } catch (error) {
             return res.status(500).json({
                 msg: error.message
@@ -111,7 +146,7 @@ class ProductController {
                 runValidators: true,
             }).exec();
             const proDelete = await ProductModel.findById(id).exec();
-            return proDelete == null ? res.status(202).json({
+            return proDelete == null ? res.status(200).json({
                 msg: "Delete product successfully!",
             }) : res.status(401).json({
                 msg: "Delete product unsuccessfully!",

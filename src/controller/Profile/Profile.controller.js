@@ -8,7 +8,7 @@ class ProfileControler{
                     msg:"Please check the account id"
                 })
             }else{
-                let profile = await ProfileModel.findOne({account_id: String(id)}).exec();
+                let profile = await ProfileModel.findOne({_id: String(id)}).exec();
                 if(profile == null){
                     return null;
                 }else{
@@ -27,7 +27,8 @@ class ProfileControler{
                     msg:"Please check the account id"
                 })
             }else{
-                let profile = await ProfileModel.findOne({account_id:id}).exec();
+                let profile = await ProfileModel.findOne({_id:id}).exec();
+                console.log('idd',id)
                 if(profile == null){
                     return res.status(400).json({
                         msg: "no profile for user"
@@ -51,7 +52,7 @@ class ProfileControler{
                     msg:"Please enter data"
                 })
             }
-            const newProfile = new ProfileModel({account_id:id,...data});
+            const newProfile = new ProfileModel({_id:id,...data});
             if(newProfile == null){
                 return res.status(400).json({
                     msg:"please check data profile"
@@ -77,10 +78,11 @@ class ProfileControler{
             })
         }else{
             try{
-                const uddateProfile = await ProfileModel.findOneAndUpdate({account_id:id},data,{
+                const uddateProfile = await ProfileModel.findOneAndUpdate({_id:id},data,{
                     new:true,
                     runValidators:true
                 }).exec();
+                console.log('update',uddateProfile)
                 uddateProfile.updatedAt = Date.now();
                 await uddateProfile.save();
                 return res.status(200).json({
