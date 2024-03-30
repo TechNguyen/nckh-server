@@ -1,5 +1,7 @@
 import { ObjectId } from "mongodb";
 import OrderModel from "../../model/Order.model.js";
+import CartModel from '../../model/Carts.model.js'
+import ProductModel from "../../model/Product.model.js";
 
 class OrderController {
     async getOrderByIdUser(req, res, next) {
@@ -37,9 +39,32 @@ class OrderController {
                 })
             }
             else{
+                const chec = data.map(async(item,index)=>{
+                    const cartItem =  await CartModel.findOne({userId:item.userId,productId:item.productId});
+                    await CartModel.findOneAndRemove({userId:item.userId,productId:item.productId});
+                  
+                    const productItem =  await ProductModel.findById(item.productId);
+                    console.log('Check pro item',productItem)
+                    if(productItem.quanlity <=1){
+                        await ProductModel.findByIdAndRemove(item.productId);
+                    }else{
+                        if(productItem.quanlity>=item.quantity){
+                            let newQuantity= productItem.quanlity - item.quantity;
+                             const newCartItem =  await ProductModel.findOneAndUpdate({_id:item.productId},{$set: {quanlity:newQuantity}},{new:true});
+                             console.log('new item',newCartItem)
+                        }else{
+                            res.status(203).json({
+                                msg: "not enought product"
+                            })
+                        }
+                    }
+                   
+                })
+
                 const promises = data.map(docData => {
                     const doc = new OrderModel(docData);
-                    return doc.save();
+                    const a = doc.save();
+                    return a;
                 });
                 
                 // Chờ tất cả các promise hoàn thành

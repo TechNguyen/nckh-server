@@ -104,7 +104,6 @@ class authController {
                                 accesstoken: tokens.accessToken,
                                 roleName: roleName.roleName
                             },
-
                             message: "Successfully!"
                         })
                     } else {
