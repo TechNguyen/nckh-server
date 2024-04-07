@@ -31,7 +31,7 @@ router.post('/upload', upload.array("files"), product.UploadImages)
 
 //import export
 router.post('/import-product', upload.single("import"), product.ImportProduct )
-router.get('/export-excel', product.ExportProduct)
+router.get('/export-excel',checkAccessToken, product.ExportProduct)
 router.get('/search', product.findProductByName)
 
 export default router;

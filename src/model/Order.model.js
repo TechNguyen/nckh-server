@@ -7,7 +7,8 @@ const OrderModel = new Schema({
     price: {type:Number},
     idAdmin:{type: ObjectId},
     uploadAt: {type: Date, default: Date.now},
-    isPay:{type:Boolean,default:true}
+    imgUrl:{type:String},
+    isPay:{type:Boolean,default:false}
 }, {id: true,timestamps:true})
 
 

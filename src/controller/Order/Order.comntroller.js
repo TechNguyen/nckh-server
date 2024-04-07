@@ -2,6 +2,7 @@ import { ObjectId } from "mongodb";
 import OrderModel from "../../model/Order.model.js";
 import CartModel from '../../model/Carts.model.js'
 import ProductModel from "../../model/Product.model.js";
+import excel from 'exceljs'
 
 class OrderController {
     async getOrderByIdUser(req, res, next) {
@@ -28,6 +29,32 @@ class OrderController {
             });
         }
     }
+    async getOrderByIdCustomer(req,res,next){
+        try{
+            let id = req.user_id;
+            const data =  await OrderModel.find({userId:id,isPay:false}).populate('productId').exec()
+            if(data){
+                res.status(200).json({
+                    msg:"Success",
+                    data:data
+                })
+            }
+        }catch(err){
+            res.status(500).json({
+                err:err.message
+            })
+        }
+    }
+    async updateOrderPay(req,res,next){
+        try{
+            const id = req.user_id;
+            const idOrder = req.query.id;
+            const updateOrder = await OrderModel.findByIdAndUpdate(idOrder,{isPay:true}, {new: true});
+            res.status(200).json(updateOrder)
+        }catch(err){
+            msg:err.message
+        }
+    }
     async createOrder(req,res,next){
         try{
             const data = req.body;
@@ -45,8 +72,10 @@ class OrderController {
                   
                     const productItem =  await ProductModel.findById(item.productId);
                     console.log('Check pro item',productItem)
-                    if(productItem.quanlity <=1){
-                        await ProductModel.findByIdAndRemove(item.productId);
+                    if(productItem.quanlity -item.quanlity < 0|| productItem.quanlity == 0){
+                        return res.status(203).json({
+                            msg:'not enought product'
+                        })
                     }else{
                         if(productItem.quanlity>=item.quantity){
                             let newQuantity= productItem.quanlity - item.quantity;
@@ -158,6 +187,87 @@ class OrderController {
                 err : error.message
             })
         }
+    }
+    async exportOrderByIdAdmin(req,res,next){
+        try{
+            
+                // const idUser = req.user_id;
+                const idUser = '65fcd6910ee7ecdfbc31aadb'
+            console.log("hihihaha vao day")
+            let workbook = new excel.Workbook();
+            let worksheet  = workbook.addWorksheet("Orders");
+            //config
+            worksheet.columns = [
+                {header: "Tên sản phẩm", key: "productName", width: 5},
+                 {key: "quantity", header: "Số lượng", width: 5 },
+                 {key: "price", header: "Gía thành", width: 5},
+                 {key: "phoneNumber", header: "Số điện thoại", width: 5},
+                 {key: "fullName", header: "Tên người mua", width: 5},
+                 {key: "address", header: "Địa chỉ", width: 5},
+                 {key: "createdAt", header: "Ngày mua", width: 10 },
+                 {key: "isPay", header: "Thanh toán", width: 10 },
+            ]
+            //get all product
+            const listProduct = await OrderModel.find({ idAdmin: idUser}).populate(['userId','productId']).exec(); 
+            console.log('check lis',listProduct)
+            if(listProduct.length !=0){
+                listProduct.forEach(function(item,index){
+                    console.log(":cđ",index)
+                    worksheet.addRow({
+                        productName:item.productId.productName,
+                        quantity:item.quantity,
+                        price: item.productId.price,
+                        phoneNumber:item.userId.phoneNumber,
+                        fullName:item.userId.fullName,
+                        address:item.userId.address,
+                        createdAt:item.createdAt,
+                        isPay:item.isPay ? "Đã thanh toán" :"Chưa thanh toán"
+                    })
+                })
+            }else{
+                return res.status(500).json({
+                    msg:"no orders"
+                })
+            }
+            res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"); 
+            res.setHeader("Content-Disposition", "attachment; filename=" + "Orders.xlsx");
+            
+            return workbook.xlsx.write(res).then(() => 
+                res.status(200).end()
+            )
+
+        }catch(err){
+            res.status(500).json({
+                msg:"Err",
+                err:err.message
+            })
+        }
+    }
+    async getProfitFromDay(req,res,next){
+        try{
+            const idAdmin = req.user_id;
+            console.log("check da vao dat")
+            const dateFrom = req.body.dateFrom ? req.body.dateFrom : '2024-04-05';
+            const dateTo = req.body.dateTo ? req.body.dateTo : '2024-04-06';
+            if(!idAdmin){
+                res.status(404).json({
+                    msg:"Id admin is null"
+                })
+            }
+            const ListOrder = await OrderModel.find({
+                createdAt:{
+                    $gte: new Date(dateFrom), 
+                    $lt: new Date(dateTo)
+                }
+            })
+            res.status(200).json(ListOrder)
+        }catch(err){
+            res.status(500).json({
+                msg:"err",
+                err: err.message
+            })
+        }
+        
     }
 }
 

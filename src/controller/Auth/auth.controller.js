@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken'
 import ProfilleController from '../Profile/Profile.controller.js'
 import ProfileModel from '../../model/Profile.model.js';
 import RoleController from '../Role/role.controller.js';
+import nodemailer from 'nodemailer'
 
 const profile = new ProfilleController();
 const role = new RoleController();
@@ -122,7 +123,7 @@ class authController {
         } catch(err) {
             return res.status(500).json({
                 status: 500,
-                message: err.error
+                message: err.message
             })
         } 
     }
@@ -214,6 +215,55 @@ class authController {
                 status: 500
             })
         }
+    }
+    async SendEmailConfirmResetPassword (req,res,next){
+        try{
+            const transporter = nodemailer.createTransport({
+                host: "smtp.gmail.com",
+                port: 587,
+                secure: false, // Use `true` for port 465, `false` for all other ports
+                auth: {
+                  user: "vo503860@gmail.com",
+                  pass: "imic oztf ovsc djsx",
+                },
+              });
+              const info = await transporter.sendMail({
+                from: '"ANH NGƯỜI TÌNH" <vo503860@gmail.com>', // sender address
+                to: "vomanhcuong06102003@gmail.com", // list of receivers
+                subject: "Hello ✔", // Subject line
+                text: "day la email cua vio manh cuoing", // plain text body
+                html: `
+                <div>
+                  <p><Hello></p>
+                  <a href='https://www.facebook.com/manhcuong.vo.9461?__cft__[0]=AZVihPVsgbi0Xe8lCVf8KEB_Uw8eNBVkYAymdUVZbbduxXAPDakzqr0ocmT_xxebNk4Ee3Y95AldmA55kOZcq3nAPn8nhCQGC9S64S3Za3RD1xDbDvo9bzUNtNhvFRlRgp7uxVYUA6bIT79Caef8tgjPkk_WWLR71zA5TELyUHdx5w&__tn__=-UC%2CP-R'>Kích vào đây</a>
+                </div>`, // html body
+                attachments:{
+                    path: 'https://i.pinimg.com/736x/89/11/d4/8911d45fd29b3e7a36b937ef8df3f47a.jpg' //
+                }
+              });
+              res.status(200).json(info)
+        }catch(err){
+            res.status(500).json({
+                msg:"err",
+                err:err.message
+            })
+        }
+    }
+    async getProfitFromDay(){
+        try{
+            const idAdmin = req.user_id;
+            if(!idAdmin){
+                res.status(404).json({
+                    msg:"Id admin is null"
+                })
+            }
+        }catch(err){
+            res.status(500).json({
+                msg:"err",
+                err: err.message
+            })
+        }
+        
     }
 }
 export default authController
