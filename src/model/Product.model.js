@@ -16,6 +16,7 @@ const product = new Schema({
         ref:'accountusers'
     },
     quanlity: {type: Number},
+    solid:{type:Number,default:0},
     price: {type: Number},
     description: {type: String},
     brandId: {type: String},

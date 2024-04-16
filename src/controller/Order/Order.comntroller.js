@@ -50,6 +50,11 @@ class OrderController {
             const id = req.user_id;
             const idOrder = req.query.id;
             const updateOrder = await OrderModel.findByIdAndUpdate(idOrder,{isPay:true}, {new: true});
+            const product = await ProductModel.findById(updateOrder.productId).exec();
+            if(product!=null){
+                product.solid = product.solid+updateOrder.quantity;
+                await product.save();
+            }
             res.status(200).json(updateOrder)
         }catch(err){
             msg:err.message
@@ -247,17 +252,20 @@ class OrderController {
         try{
             const idAdmin = req.user_id;
             console.log("check da vao dat")
-            const dateFrom = req.body.dateFrom ? req.body.dateFrom : '2024-04-05';
-            const dateTo = req.body.dateTo ? req.body.dateTo : '2024-04-06';
-            if(!idAdmin){
+            const dateFrom = req.body?.dateFrom;
+            const dateTo = req.body?.dateTo ;
+            console.log("check date from", new Date(dateFrom))
+            console.log("check date To", new Date(dateTo))
+            if(!idAdmin || !dateFrom || !dateTo){
                 res.status(404).json({
-                    msg:"Id admin is null"
+                    msg:"Some thing wrong"
                 })
             }
             const ListOrder = await OrderModel.find({
+                idAdmin:idAdmin,
                 createdAt:{
                     $gte: new Date(dateFrom), 
-                    $lt: new Date(dateTo)
+                    $lte: new Date(dateTo)
                 }
             })
             res.status(200).json(ListOrder)

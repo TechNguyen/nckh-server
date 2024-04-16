@@ -9,5 +9,5 @@ router.post('/sign-in', auth.signIn)
 router.get('/token', auth.token)
 router.get('/me',checkAccessToken, auth.getMe)
 router.post('/reset-password', auth.ResetPassWord)
-router.get('/sendEmail', auth.SendEmailConfirmResetPassword)
+router.post('/sendEmail', auth.SendEmailConfirmResetPassword)
 export default router

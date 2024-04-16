@@ -218,6 +218,15 @@ class authController {
     }
     async SendEmailConfirmResetPassword (req,res,next){
         try{
+            const data = req.body;
+            const email = data.email;
+            const user = await AccountUserModel.findOne({emai:email}).exec();
+            if(!user){
+                return res.status(500).json({
+                    msg:"Not exit user with email"
+                })
+            }
+            console.log('data',data)
             const transporter = nodemailer.createTransport({
                 host: "smtp.gmail.com",
                 port: 587,

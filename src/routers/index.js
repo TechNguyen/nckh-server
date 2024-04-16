@@ -6,6 +6,7 @@ import ProfileRouter from "./profile.router.js"
 import uploadImageRouter from "./uploadImage.router.js"
 import OrderRouter from "./order.router.js"
 import CartRoute from "./cart.router.js"
+import CommentRoute from "./comment.router.js"
 function Route(app) {
     app.use('/api/v1/auth',AuthRouter)
     app.use('/api/v1/role',RoleRouter)
@@ -15,5 +16,6 @@ function Route(app) {
     app.use('/api/v1/images',uploadImageRouter)
     app.use('/api/v1/order',OrderRouter)
     app.use('/api/v1/cart',CartRoute)
+    app.use('/api/v1/comment',CommentRoute)
 }
 export default Route

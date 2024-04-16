@@ -13,9 +13,27 @@ const port = process.env.SERVER_PORT || 8081;
 const app = express()
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+import  {Server}  from "socket.io";
+import http from 'http';
 
+// const httpServer = http.createServer(app);
+// const io = new Server(httpServer, {
+//     cors: {
+//       origin: "http://localhost:3302",
+//       methods: ["GET", "POST"],
+//     },
+//   });
+//   io.on("connection", (socket) => {
+//     console.log('a user connected',socket.id);
+//     socket.on('send_message', (data) => {
+//     console.log('check data cai ha',data);
+//     socket.on("connect_error", (err) => {
+//       console.log(`connect_error due to ${err.message}`);
+//     });
+//   });
 
-
+//   });
+//   httpServer.listen(3301)
 app.use(bodyParser.json());
 
 app.use(bodyParser.urlencoded({
